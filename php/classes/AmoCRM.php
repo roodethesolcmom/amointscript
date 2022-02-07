@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers;
+//namespace App\Controllers;
 
-use Exception;
+//use Exception;
 
 class AmoCRM {
 
@@ -17,7 +17,7 @@ class AmoCRM {
         curl_setopt($curl, CURLOPT_HTTPHEADER, $httpheader);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 20);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 1); // 1 - с проверкой серта, 0 - без
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0); // 1 - с проверкой серта, 0 - без
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
         $out = curl_exec($curl);
         $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -44,7 +44,7 @@ class AmoCRM {
         catch(Exception $e)
         {
             $txt = 'Ошибка: ' . $e->getMessage() . PHP_EOL . 'Код ошибки: ' . $e->getCode();
-            echo $txt;
+            return $txt;
         }
         $response = [
             'code' => $code,
@@ -68,7 +68,8 @@ class AmoCRM {
         $res = $this -> make_request($link, $method, $httpheader, $data);
         $code = json_decode($res, true)['code'];
         try
-        {
+        {   
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -83,7 +84,7 @@ class AmoCRM {
     }
 
     function revoke_keys() {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $old_token = json_decode($old_token_data, true)['body']['refresh_token'];
         $subdomain = 'krafti';
@@ -98,9 +99,10 @@ class AmoCRM {
         $method = 'POST';
         $httpheader = ['Content-Type:application/json'];
         $res = $this -> make_request($link, $method, $httpheader, $data);
-        $code = json_decode($res, true)['code'];
+        
         try
-        {
+        {   
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -202,17 +204,18 @@ class AmoCRM {
                             echo $lead_info;
                         }
                 }
-        } else {
+        }
+    } else {
             $new_contact = $this -> create_contact($user_name, $phone, $email_form);
             $lead_name = 'krafti.ru ' . $user_name;
             $new_contact_id = json_decode($new_contact, true)['body']['_embedded']['contacts'][0]['id'];
             $create_lead = $this -> create_lead($lead_name, 44942410, 4980019, $new_contact_id);
-            $new_lead_id = json_decode($create_lead, true)['body']['_embedded']['leads'][0]['id'];
+            $new_lead_id = json_decode($create_lead, true);//['body']['_embedded']['leads'][0]['id'];
+            echo $new_lead_id;
             $edit_product = $this -> edit_lead_product($new_lead_id, $product_name, $price);
-            return $new_contact;
+            echo $new_contact_id;
         }
         return $res;
-        }
     }
 
     function buy_worker_confirm($phone) {
@@ -249,7 +252,7 @@ class AmoCRM {
     }
 
     function create_custom_field_text($product_field_name) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -291,7 +294,7 @@ class AmoCRM {
     }
 
     function edit_lead_product($lead_id, $product_name, $price) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -315,9 +318,9 @@ class AmoCRM {
         $method = 'PATCH';
         $res = $this -> make_request($link, $method, $headers, $data);
         echo $res;
-        $code = json_decode($res, true)['code'];
         try
-        {
+        {   
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -335,7 +338,7 @@ class AmoCRM {
     }
 
     function edit_lead_success($lead_id, $status_id) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -369,9 +372,10 @@ class AmoCRM {
         $method = 'PATCH';
         $res = $this -> make_request($link, $method, $headers, $data);
         echo $res;
-        $code = json_decode($res, true)['code'];
+        
         try
-        {
+        {   
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -389,7 +393,7 @@ class AmoCRM {
     }
 
     function get_contact($phone) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -399,9 +403,9 @@ class AmoCRM {
         ];
         $method = 'GET';
         $res = $this -> make_request($link, $method, $headers, false);
-        $code = json_decode($res, true)['code'];
         try
-        {
+        {   
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -419,7 +423,7 @@ class AmoCRM {
     }
 
     function get_lead_by_id($lead_id) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -429,9 +433,9 @@ class AmoCRM {
         ];
         $method = 'GET';
         $res = $this -> make_request($link, $method, $headers, false);
-        $code = json_decode($res, true)['code'];
         try
-        {
+        {   
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -448,7 +452,7 @@ class AmoCRM {
     }
 
     function create_note($lead_id, $text) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -466,9 +470,10 @@ class AmoCRM {
         $method = 'POST';
         $res = $this -> make_request($link, $method, $headers, $data);
         echo $res;
-        $code = json_decode($res, true)['code'];
+        //$code = json_decode($res, true)['code'];
         try
         {
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -486,7 +491,7 @@ class AmoCRM {
     }
 
     function create_quest($lead_id) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -507,9 +512,10 @@ class AmoCRM {
         $method = 'POST';
         $res = $this -> make_request($link, $method, $headers, $data);
         echo $res;
-        $code = json_decode($res, true)['code'];
+        //$code = json_decode($res, true)['code'];
         try
         {
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -527,7 +533,7 @@ class AmoCRM {
     }
 
     function create_lead($user_name, $status_id, $pipeline_id, $contact_id) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -551,9 +557,9 @@ class AmoCRM {
         //$httpheader = ['Content-Type:application/json'];
         $res = $this -> make_request($link, $method, $headers, $data);
         echo $res;
-        $code = json_decode($res, true)['code'];
         try
         {
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
@@ -570,7 +576,7 @@ class AmoCRM {
     }
 
     function create_contact($name, $phone, $email) {
-        $file = '/var/www/html/keys.json';
+        $file = '.\classes\keys.json';//'/var/www/html/keys.json';
         $old_token_data = file_get_contents($file);
         $token = json_decode($old_token_data, true)['body']['access_token'];
         $subdomain = 'krafti';
@@ -594,9 +600,10 @@ class AmoCRM {
         $method = 'POST';
         $res = $this -> make_request($link, $method, $headers, $data);
         echo $res;
-        $code = json_decode($res, true)['code'];
+        //$code = json_decode($res, true)['code'];
         try
         {
+            $code = json_decode($res, true)['code'];
             if ($code < 200 || $code > 204) {
                 throw new Exception(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
